@@ -21,6 +21,8 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'debug_toolbar',
+    'storages',
     'core',
     'patient',
     'staff',
@@ -129,11 +132,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type
@@ -188,4 +191,36 @@ SWAGGER_SETTINGS = {
             "description": "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
         }
     }
+}
+
+
+# AWS Configuration
+
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+# Amazon S3 Configuration
+
+AWS_STORAGE_BUCKET_NAME = "django-serve-bkt"
+AWS_S3_REGION_NAME = "us-east-1"
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+
+# Add this line - it's needed even when using S3
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Static files
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+
+# Media files
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "core.storage_backends.MediaStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "core.storage_backends.StaticStorage",
+    },
 }
